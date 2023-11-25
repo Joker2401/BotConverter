@@ -19,10 +19,8 @@ class ValueConverted:
     @staticmethod
     def convert(quote: str, base: str, amount: str):
 
-        quote_ticker, base_ticker = keys[quote], keys[base]
-        r = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_ticker}&tsyms={base_ticker}')
-        total_base = json.loads(r.content)[keys[base]]
-        # биткоин доллар 1
+
+
 
         if quote == base:  # если переводим одинаковые валюты
             raise ConvertionException('Зачем переводить одинаковые валюты?')
@@ -41,8 +39,10 @@ class ValueConverted:
                 raise ConvertionException
         except:
             raise ConvertionException('Введите число!')
-
-
+        quote_ticker, base_ticker = keys[quote], keys[base]
+        r = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_ticker}&tsyms={base_ticker}')
+        total_base = json.loads(r.content)[keys[base]]
+        return total_base
 
 # обработчик команд start help
 @bot.message_handler(commands=['start', 'help'])
