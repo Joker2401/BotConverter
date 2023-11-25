@@ -8,13 +8,40 @@ bot = telebot.TeleBot(TOKEN)
 
 keys = {
     'доллар': 'USD',
-    'биткоин': 'BTC'
+    'биткоин': 'BTC',
+    'рубль': 'RUB'
 }
 
 class ConvertionException(Exception):
     pass
 
 class ValueConverted:
+    @staticmethod
+    def convert(quote: str, base: str, amount: str):
+
+        quote_ticker, base_ticker = keys[quote], keys[base]
+        r = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_ticker}&tsyms={base_ticker}')
+        total_base = json.loads(r.content)[keys[base]]
+        # биткоин доллар 1
+
+        if quote == base:  # если переводим одинаковые валюты
+            raise ConvertionException('Зачем переводить одинаковые валюты?')
+        try:
+            quote_ticker = keys[quote]
+        except KeyError:
+            raise ConvertionException(f'Не удалось обработать валюту {quote_ticker}')
+        try:
+            base_ticker = keys[quote]
+        except KeyError:
+            raise ConvertionException(f'Не удалось обработать валюту {base}')
+        try:  # если пользователь вводит в количество валюты не число
+            if amount.isdigit():
+                pass
+            else:
+                raise ConvertionException
+        except:
+            raise ConvertionException('Введите число!')
+
 
 
 # обработчик команд start help
@@ -38,36 +65,14 @@ def avialable_currency(message: telebot.types.Message):
 #основная задача бота
 @bot.message_handler(content_types=['text', ])
 def convert(message: telebot.types.Message):
-    #биткоин доллар 1
-    values = message.text.split(' ') #разделяем полученный текст на список по пробелам
-    if len(values) > 3:
+
+    values = message.text.split(' ')  # разделяем полученный текст на список по пробелам
+    if len(values) != 3:
         raise ConvertionException('Слишком много параметров')
-
-    quote_ticker, base_ticker = keys[quote], keys[base]
     quote, base, amount = values
+    total_base = ValueConverted.convert(quote, base, amount)
 
-    if quote == base: #если переводим одинаковые валюты
-        raise ConvertionException('Зачем переводить одинаковые валюты?')
 
-    try: # если пользователь вводит в количество валюты не число
-        if amount.isdigit():
-            pass
-        else:
-            raise ConvertionException
-    except:
-        raise ConvertionException('Введите число!')
-
-    try:
-        quote_ticker = keys[quote]
-    except KeyError:
-        raise ConvertionException(f'Не удалось обработать валюту {quote}')
-
-    try:
-        base_ticker = keys[quote]
-    except KeyError:
-        raise ConvertionException(f'Не удалось обработать валюту {base}')
-    r = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_ticker}&tsyms={base_ticker}')
-    total_base = json.loads(r.content)[keys[base]]
     text = f'цена {amount} {quote} в {base} - {total_base}'
     bot.send_message(message.chat.id, text)
 bot.polling()
