@@ -1,16 +1,26 @@
 import telebot
 from config import keys, TOKEN
 from classes import ConvertionException, ValueConverted
+from telebot import types
 bot = telebot.TeleBot(TOKEN)
-# обработчик команд start help
-@bot.message_handler(commands=['start', 'help'])
-def help_(message: telebot.types.Message):
-    text = ('Чтобы начать работать введите боту команду в следующем формате: \n <имя валюты> '
-            '<в какую валюту перевести> '
-            '<количество валюты> \n'
-            'Увидеть список доступных валют /values')
+
+markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+btn_start = types.KeyboardButton('/start')
+btn_help = types.KeyboardButton('/help')
+btn_values = types.KeyboardButton('/values')
+markup.add(btn_start, btn_help, btn_values)
+@bot.message_handler(commands=['start'])
+def start_(message: telebot.types.Message):
+    text = ('Чтобы узнать как работать с ботом нажмите на кнопку [/help]')
     bot.reply_to(message, text)
 
+@bot.message_handler(commands=['help'])
+def help_(message: telebot.types.Message):
+    text = ('Для того, чтобы совершить перевод валюты отправьте сообщение по данному шаблону\n'
+            '<имя валюты, цену которой хотите узнать>'
+            ' <имя валюты, в которой надо узнать цену первой валюты> <количество первой валюты>\n'
+            'Для того, чтобы узнать доступные для перевода валюты нажмите на кнопку [/values]')
+    bot.reply_to(message, text)
 
 #обработчик доступной валюты
 @bot.message_handler(commands=['values'])
