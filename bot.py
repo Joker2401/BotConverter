@@ -2,7 +2,6 @@ import telebot
 from config import keys, TOKEN
 from classes import ConvertionException, ValueConverted
 bot = telebot.TeleBot(TOKEN)
-
 # обработчик команд start help
 @bot.message_handler(commands=['start', 'help'])
 def help_(message: telebot.types.Message):
@@ -36,8 +35,8 @@ def convert(message: telebot.types.Message):
         bot.reply_to(message, f'Не удалось обработать команду \n{e}')
     else:
         # text = f'цена {amount} {quote} в {base} - {total_base}'
-        bot.send_message(message.chat.id, total_base)
-        # bot.reply_to(message, text)
+        # bot.send_message(message.chat.id, total_base)
+        bot.reply_to(message, total_base)
 
 
 bot.polling()
